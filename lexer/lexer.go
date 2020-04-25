@@ -3,7 +3,7 @@ package lexer
 import (
 	"strings"
 
-	"github.com/morinokami/go-json-parser/token"
+	"github.com/morinokami/gj/token"
 )
 
 const eof = 0

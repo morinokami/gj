@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/morinokami/go-json-parser/token"
+	"github.com/morinokami/gj/token"
 )
 
 type Expression interface {

@@ -3,7 +3,7 @@ package ast
 import (
 	"testing"
 
-	"github.com/morinokami/go-json-parser/token"
+	"github.com/morinokami/gj/token"
 )
 
 func TestString(t *testing.T) {

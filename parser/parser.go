@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/morinokami/go-json-parser/ast"
-	"github.com/morinokami/go-json-parser/lexer"
-	"github.com/morinokami/go-json-parser/token"
+	"github.com/morinokami/gj/ast"
+	"github.com/morinokami/gj/lexer"
+	"github.com/morinokami/gj/token"
 )
 
 type parseFn func() ast.Expression

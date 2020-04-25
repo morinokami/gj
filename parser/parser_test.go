@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/morinokami/go-json-parser/ast"
-	"github.com/morinokami/go-json-parser/lexer"
+	"github.com/morinokami/gj/ast"
+	"github.com/morinokami/gj/lexer"
 )
 
 func TestBooleanExpression(t *testing.T) {

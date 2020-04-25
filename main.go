@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/morinokami/go-json-parser/lexer"
-	"github.com/morinokami/go-json-parser/parser"
+	"github.com/morinokami/gj/lexer"
+	"github.com/morinokami/gj/parser"
 )
 
 func main() {
