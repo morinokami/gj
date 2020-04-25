@@ -30,6 +30,7 @@ const (
 	MINUS = "-"
 )
 
+// TODO: Add position
 type token struct {
 	Type    tokenType
 	Literal string
