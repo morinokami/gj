@@ -8,15 +8,15 @@ func TestString(t *testing.T) {
 	json := &jsonValue{
 		Value: &object{
 			Token: token{
-				Type:    LBRACE,
+				Type:    tokLBrace,
 				Literal: "{",
 			},
 			Pairs: map[stringLiteral]expression{
 				stringLiteral{
-					Token: token{Type: STRING, Literal: "foo"},
+					Token: token{Type: tokString, Literal: "foo"},
 					Value: "foo",
 				}: &integer{
-					Token: token{Type: INT, Literal: "123"},
+					Token: token{Type: tokInt, Literal: "123"},
 					Value: 123,
 				},
 			},

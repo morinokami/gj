@@ -7,7 +7,7 @@ import (
 
 type parseFn func() expression
 
-type Parser struct {
+type parser struct {
 	l      *lexer
 	errors []string
 
@@ -17,23 +17,23 @@ type Parser struct {
 	parseFns map[tokenType]parseFn
 }
 
-// newParser initializes a Parser object and returns it.
-func newParser(l *lexer) *Parser {
-	p := &Parser{
+// newParser initializes a parser object and returns it.
+func newParser(l *lexer) *parser {
+	p := &parser{
 		l:      l,
 		errors: []string{},
 	}
 
 	p.parseFns = make(map[tokenType]parseFn)
-	p.registerParseFn(TRUE, p.parseBoolean)
-	p.registerParseFn(FALSE, p.parseBoolean)
-	p.registerParseFn(NULL, p.parseNull)
-	p.registerParseFn(INT, p.parseInteger)
-	p.registerParseFn(FLOAT, p.parseFloat)
-	p.registerParseFn(MINUS, p.parsePrefixExpression)
-	p.registerParseFn(STRING, p.parseString)
-	p.registerParseFn(LBRACE, p.parseObject)
-	p.registerParseFn(LBRACKET, p.parseArray)
+	p.registerParseFn(tokTrue, p.parseBoolean)
+	p.registerParseFn(tokFalse, p.parseBoolean)
+	p.registerParseFn(tokNull, p.parseNull)
+	p.registerParseFn(tokInt, p.parseInteger)
+	p.registerParseFn(tokFloat, p.parseFloat)
+	p.registerParseFn(tokMinus, p.parsePrefixExpression)
+	p.registerParseFn(tokString, p.parseString)
+	p.registerParseFn(tokLBrace, p.parseObject)
+	p.registerParseFn(tokLBracket, p.parseArray)
 
 	p.nextToken()
 	p.nextToken()
@@ -42,24 +42,24 @@ func newParser(l *lexer) *Parser {
 }
 
 // nextToken advances the tokens.
-func (p *Parser) nextToken() {
+func (p *parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.nextToken()
 }
 
 // curTokenIs returns true if the type of curToken is t, false otherwise.
-func (p *Parser) curTokenIs(t tokenType) bool {
+func (p *parser) curTokenIs(t tokenType) bool {
 	return p.curToken.Type == t
 }
 
 // peekTokenIs returns true if the type of peekToken is t, false otherwise.
-func (p *Parser) peekTokenIs(t tokenType) bool {
+func (p *parser) peekTokenIs(t tokenType) bool {
 	return p.peekToken.Type == t
 }
 
 // If the type of peekToken is t, expectPeek returns true and advance the tokens.
 // Otherwise it returns false and append an error message to errors.
-func (p *Parser) expectPeek(t tokenType) bool {
+func (p *parser) expectPeek(t tokenType) bool {
 	if p.peekTokenIs(t) {
 		p.nextToken()
 		return true
@@ -70,22 +70,22 @@ func (p *Parser) expectPeek(t tokenType) bool {
 }
 
 // getErrors returns the slice of error messages.
-func (p *Parser) getErrors() []string {
+func (p *parser) getErrors() []string {
 	return p.errors
 }
 
-func (p *Parser) noParseFnError(t tokenType) {
+func (p *parser) noParseFnError(t tokenType) {
 	msg := fmt.Sprintf("no parse function for %s found.", t)
 	p.errors = append(p.errors, msg)
 }
 
-func (p *Parser) peekError(t tokenType) {
+func (p *parser) peekError(t tokenType) {
 	msg := fmt.Sprintf("expected next token to be %s, got %s instead.", t, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
 
 // parse parses the input string and returns the result as an ast.jsonValue.
-func (p *Parser) parse() *jsonValue {
+func (p *parser) parse() *jsonValue {
 	json := &jsonValue{}
 
 	json.Value = p.parseExpression()
@@ -93,7 +93,7 @@ func (p *Parser) parse() *jsonValue {
 	return json
 }
 
-func (p *Parser) parseExpression() expression {
+func (p *parser) parseExpression() expression {
 	prefix := p.parseFns[p.curToken.Type]
 	if prefix == nil {
 		p.noParseFnError(p.curToken.Type)
@@ -105,15 +105,15 @@ func (p *Parser) parseExpression() expression {
 	return exp
 }
 
-func (p *Parser) parseBoolean() expression {
-	return &boolean{Token: p.curToken, Value: p.curTokenIs(TRUE)}
+func (p *parser) parseBoolean() expression {
+	return &boolean{Token: p.curToken, Value: p.curTokenIs(tokTrue)}
 }
 
-func (p *Parser) parseNull() expression {
+func (p *parser) parseNull() expression {
 	return &null{Token: p.curToken, Value: nil}
 }
 
-func (p *Parser) parseInteger() expression {
+func (p *parser) parseInteger() expression {
 	i := &integer{Token: p.curToken}
 
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
@@ -128,11 +128,11 @@ func (p *Parser) parseInteger() expression {
 	return i
 }
 
-func (p *Parser) parseFloat() expression {
+func (p *parser) parseFloat() expression {
 	return &float{Token: p.curToken, Value: p.curToken.Literal}
 }
 
-func (p *Parser) parsePrefixExpression() expression {
+func (p *parser) parsePrefixExpression() expression {
 	exp := &prefixExpression{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
@@ -145,22 +145,22 @@ func (p *Parser) parsePrefixExpression() expression {
 	return exp
 }
 
-func (p *Parser) parseString() expression {
+func (p *parser) parseString() expression {
 	return &stringLiteral{Token: p.curToken, Value: p.curToken.Literal}
 }
 
-func (p *Parser) parseObject() expression {
+func (p *parser) parseObject() expression {
 	object := &object{Token: p.curToken}
 	object.Pairs = make(map[stringLiteral]expression)
 
-	for !p.peekTokenIs(RBRACE) {
-		if !p.expectPeek(STRING) {
+	for !p.peekTokenIs(tokRBrace) {
+		if !p.expectPeek(tokString) {
 			return nil
 		}
 
 		key := p.parseString().(*stringLiteral)
 
-		if !p.expectPeek(COLON) {
+		if !p.expectPeek(tokColon) {
 			return nil
 		}
 
@@ -169,23 +169,23 @@ func (p *Parser) parseObject() expression {
 
 		object.Pairs[*key] = value
 
-		if !p.peekTokenIs(RBRACE) && !p.expectPeek(COMMA) {
+		if !p.peekTokenIs(tokRBrace) && !p.expectPeek(tokComma) {
 			return nil
 		}
 	}
 
-	if !p.expectPeek(RBRACE) {
+	if !p.expectPeek(tokRBrace) {
 		return nil
 	}
 
 	return object
 }
 
-func (p *Parser) parseArray() expression {
+func (p *parser) parseArray() expression {
 	array := &array{Token: p.curToken}
 	array.Values = []expression{}
 
-	if p.peekTokenIs(RBRACKET) {
+	if p.peekTokenIs(tokRBracket) {
 		p.nextToken()
 		return array
 	}
@@ -193,13 +193,13 @@ func (p *Parser) parseArray() expression {
 	p.nextToken()
 	array.Values = append(array.Values, p.parseExpression())
 
-	for p.peekTokenIs(COMMA) {
+	for p.peekTokenIs(tokComma) {
 		p.nextToken()
 		p.nextToken()
 		array.Values = append(array.Values, p.parseExpression())
 	}
 
-	if !p.expectPeek(RBRACKET) {
+	if !p.expectPeek(tokRBracket) {
 		return nil
 	}
 
@@ -207,6 +207,6 @@ func (p *Parser) parseArray() expression {
 }
 
 // registerParseFn registers functions to parse each token.
-func (p *Parser) registerParseFn(tokenType tokenType, fn parseFn) {
+func (p *parser) registerParseFn(tokenType tokenType, fn parseFn) {
 	p.parseFns[tokenType] = fn
 }

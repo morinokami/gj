@@ -3,31 +3,31 @@ package gj
 type tokenType string
 
 const (
-	ILLEGAL = "ILLEGAL"
-	EOF     = "EOF"
+	tokIllegal = "ILLEGAL"
+	tokEOF     = "EOF"
 
 	// Delimiters
-	COMMA = "COMMA"
-	COLON = "COLON"
+	tokComma = "COMMA"
+	tokColon = "COLON"
 
 	// Brackets
-	LBRACE   = "{"
-	RBRACE   = "}"
-	LBRACKET = "["
-	RBRACKET = "]"
+	tokLBrace   = "{"
+	tokRBrace   = "}"
+	tokLBracket = "["
+	tokRBracket = "]"
 
 	// Values
-	TRUE  = "TRUE"
-	FALSE = "FALSE"
-	NULL  = "NULL"
+	tokTrue  = "TRUE"
+	tokFalse = "FALSE"
+	tokNull  = "NULL"
 
 	// Key & Literals
-	INT    = "INT"
-	FLOAT  = "FLOAT"
-	STRING = "STRING"
+	tokInt    = "INT"
+	tokFloat  = "FLOAT"
+	tokString = "STRING"
 
 	// Operators
-	MINUS = "-"
+	tokMinus = "-"
 )
 
 // TODO: Add position
@@ -37,15 +37,15 @@ type token struct {
 }
 
 var keywords = map[string]tokenType{
-	"true":  TRUE,
-	"false": FALSE,
-	"null":  NULL,
+	"true":  tokTrue,
+	"false": tokFalse,
+	"null":  tokNull,
 }
 
-// lookupKeyword returns the token if kw is in keywords, ILLEGAL otherwise.
+// lookupKeyword returns the token if kw is in keywords, tokIllegal otherwise.
 func lookupKeyword(kw string) tokenType {
 	if tok, ok := keywords[kw]; ok {
 		return tok
 	}
-	return ILLEGAL
+	return tokIllegal
 }

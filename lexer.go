@@ -28,25 +28,25 @@ func (l *lexer) nextToken() token {
 
 	switch l.ch {
 	case ',':
-		tok = newToken(COMMA, l.ch)
+		tok = newToken(tokComma, l.ch)
 	case ':':
-		tok = newToken(COLON, l.ch)
+		tok = newToken(tokColon, l.ch)
 	case '{':
-		tok = newToken(LBRACE, l.ch)
+		tok = newToken(tokLBrace, l.ch)
 	case '}':
-		tok = newToken(RBRACE, l.ch)
+		tok = newToken(tokRBrace, l.ch)
 	case '[':
-		tok = newToken(LBRACKET, l.ch)
+		tok = newToken(tokLBracket, l.ch)
 	case ']':
-		tok = newToken(RBRACKET, l.ch)
+		tok = newToken(tokRBracket, l.ch)
 	case '"':
-		tok.Type = STRING
+		tok.Type = tokString
 		tok.Literal = l.readString()
 	case '-':
-		tok = newToken(MINUS, l.ch)
+		tok = newToken(tokMinus, l.ch)
 	case eof:
 		tok.Literal = ""
-		tok.Type = EOF
+		tok.Type = tokEOF
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readKeyword()
@@ -55,13 +55,13 @@ func (l *lexer) nextToken() token {
 		} else if isDigit(l.ch) {
 			tok.Literal = l.readNumber()
 			if strings.Contains(tok.Literal, ".") {
-				tok.Type = FLOAT
+				tok.Type = tokFloat
 			} else {
-				tok.Type = INT
+				tok.Type = tokInt
 			}
 			return tok
 		} else {
-			tok = newToken(ILLEGAL, l.ch)
+			tok = newToken(tokIllegal, l.ch)
 		}
 	}
 

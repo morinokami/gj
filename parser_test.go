@@ -273,7 +273,7 @@ func testFloat(t *testing.T, exp expression, value string) {
 	}
 }
 
-func checkParserErrors(t *testing.T, p *Parser) {
+func checkParserErrors(t *testing.T, p *parser) {
 	errors := p.getErrors()
 	if len(errors) == 0 {
 		return
