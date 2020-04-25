@@ -16,7 +16,8 @@ func TestNextToken(t *testing.T) {
         "items": [
             null,
             -123,
-            "This is an \"escape\" of a double-quote"
+            "This is an \"escape\" of a double-quote",
+            3.1415
         ]
     }
 }`
@@ -54,6 +55,8 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "123"},
 		{token.COMMA, ","},
 		{token.STRING, "This is an \"escape\" of a double-quote"},
+		{token.COMMA, ","},
+		{token.FLOAT, "3.1415"},
 		{token.RBRACKET, "]"},
 		{token.RBRACE, "}"},
 		{token.RBRACE, "}"},

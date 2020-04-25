@@ -55,8 +55,12 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Type = token.LookupKeyword(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
-			tok.Type = token.INT
 			tok.Literal = l.readNumber()
+			if strings.Contains(tok.Literal, ".") {
+				tok.Type = token.FLOAT
+			} else {
+				tok.Type = token.INT
+			}
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, l.ch)
@@ -114,13 +118,16 @@ func (l *Lexer) readString() string {
 	return result
 }
 
-// TODO: support floats
 // readNumber returns an integer as a string.
 // It advances the position until it encounters a non-digit character.
 func (l *Lexer) readNumber() string {
 	start := l.position
+	readDecimalPoint := false
 
-	for isDigit(l.ch) {
+	for isDigit(l.ch) || (l.ch == '.' && !readDecimalPoint) {
+		if l.ch == '.' {
+			readDecimalPoint = true
+		}
 		l.readChar()
 	}
 

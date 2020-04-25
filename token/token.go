@@ -23,6 +23,7 @@ const (
 
 	// Key & Literals
 	INT    = "INT"
+	FLOAT  = "FLOAT"
 	STRING = "STRING"
 
 	// Operators

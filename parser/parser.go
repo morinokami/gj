@@ -33,6 +33,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerParseFn(token.FALSE, p.parseBoolean)
 	p.registerParseFn(token.NULL, p.parseNull)
 	p.registerParseFn(token.INT, p.parseInteger)
+	p.registerParseFn(token.FLOAT, p.parseFloat)
 	p.registerParseFn(token.MINUS, p.parsePrefixExpression)
 	p.registerParseFn(token.STRING, p.parseString)
 	p.registerParseFn(token.LBRACE, p.parseObject)
@@ -129,6 +130,10 @@ func (p *Parser) parseInteger() ast.Expression {
 	i.Value = value
 
 	return i
+}
+
+func (p *Parser) parseFloat() ast.Expression {
+	return &ast.Float{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *Parser) parsePrefixExpression() ast.Expression {

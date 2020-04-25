@@ -49,6 +49,14 @@ type Integer struct {
 func (i *Integer) TokenLiteral() string { return i.Token.Literal }
 func (i *Integer) String() string       { return i.Token.Literal }
 
+type Float struct {
+	Token token.Token
+	Value string
+}
+
+func (f *Float) TokenLiteral() string { return f.Token.Literal }
+func (f *Float) String() string       { return f.Token.Literal }
+
 type PrefixExpression struct {
 	Token    token.Token
 	Operator string

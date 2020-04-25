@@ -59,25 +59,45 @@ func TestIntegerExpression(t *testing.T) {
 	json := p.Parse()
 	checkParserErrors(t, p)
 
-	testInteger(t, json.Value, 42)
+	testNumber(t, json.Value, int64(42))
 }
 
-func TestPrefixExpression(t *testing.T) {
-	input := "-273"
+func TestFloatExpression(t *testing.T) {
+	input := "2.7182"
 
 	l := lexer.New(input)
 	p := New(l)
 	json := p.Parse()
 	checkParserErrors(t, p)
 
-	exp, ok := json.Value.(*ast.PrefixExpression)
-	if !ok {
-		t.Fatalf("json.Value not ast.PrefixExpression. got=%T", json.Value)
+	testNumber(t, json.Value, "2.7182")
+}
+
+func TestPrefixExpression(t *testing.T) {
+	tests := []struct {
+		input            string
+		expectedOperator string
+		expectedValue    interface{}
+	}{
+		{"-273", "-", int64(273)},
+		{"-3.14", "-", "3.14"},
 	}
-	if exp.Operator != "-" {
-		t.Fatalf("exp.Operator not '-'. got=%s", exp.Operator)
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		json := p.Parse()
+		checkParserErrors(t, p)
+
+		exp, ok := json.Value.(*ast.PrefixExpression)
+		if !ok {
+			t.Fatalf("json.Value not ast.PrefixExpression. got=%T", json.Value)
+		}
+		if exp.Operator != tt.expectedOperator {
+			t.Fatalf("exp.Operator not '-'. got=%s", exp.Operator)
+		}
+		testNumber(t, exp.Right, tt.expectedValue)
 	}
-	testInteger(t, exp.Right, 273)
 }
 
 func TestStringExpression(t *testing.T) {
@@ -137,7 +157,7 @@ func TestObjectExpression(t *testing.T) {
 	}
 	for key, value := range object.Pairs {
 		expectedValue := expected[key.Value]
-		testInteger(t, value, expectedValue)
+		testNumber(t, value, expectedValue)
 	}
 }
 
@@ -174,7 +194,7 @@ func TestArrayExpression(t *testing.T) {
 		t.Errorf("array.Values has wrong length. got=%d.", len(array.Values))
 	}
 	for i := 0; i < 3; i++ {
-		testInteger(t, array.Values[i], int64(i+1))
+		testNumber(t, array.Values[i], int64(i+1))
 	}
 }
 
@@ -219,16 +239,40 @@ func TestIllegalExpression(t *testing.T) {
 	}
 }
 
+func testNumber(t *testing.T, exp ast.Expression, value interface{}) {
+	switch number := value.(type) {
+	case int64:
+		testInteger(t, exp, number)
+	case string: // for Float
+		testFloat(t, exp, number)
+	default:
+		t.Errorf("Wrong value type - %T.", value)
+	}
+}
+
 func testInteger(t *testing.T, exp ast.Expression, value int64) {
-	integer, ok := exp.(*ast.Integer)
+	i, ok := exp.(*ast.Integer)
 	if !ok {
 		t.Fatalf("exp not ast.Integer. got=%T.", exp)
 	}
-	if integer.Value != value {
-		t.Errorf("integer.Value not %d. got=%d.", value, integer.Value)
+	if i.Value != value {
+		t.Errorf("i.Value not %d. got=%d.", value, i.Value)
 	}
-	if integer.TokenLiteral() != fmt.Sprintf("%d", value) {
-		t.Errorf("integer.TokenLiteral() not %d. got=%s.", value, integer.TokenLiteral())
+	if i.TokenLiteral() != fmt.Sprintf("%d", value) {
+		t.Errorf("i.TokenLiteral() not %d. got=%s.", value, i.TokenLiteral())
+	}
+}
+
+func testFloat(t *testing.T, exp ast.Expression, value string) {
+	f, ok := exp.(*ast.Float)
+	if !ok {
+		t.Fatalf("exp not ast.Float. got=%T.", exp)
+	}
+	if f.Value != value {
+		t.Errorf("f.Value not %s. got=%s.", value, f.Value)
+	}
+	if f.TokenLiteral() != value {
+		t.Errorf("f.TokenLiteral() not %s. got=%s.", value, f.TokenLiteral())
 	}
 }
 
