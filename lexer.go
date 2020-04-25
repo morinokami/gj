@@ -1,9 +1,7 @@
-package lexer
+package gj
 
 import (
 	"strings"
-
-	"github.com/morinokami/gj/token"
 )
 
 const eof = 0
@@ -16,54 +14,54 @@ type Lexer struct {
 }
 
 // New returns a Lexer object.
-func New(input string) *Lexer {
+func NewLexer(input string) *Lexer {
 	l := &Lexer{input: input}
 	l.readChar()
 	return l
 }
 
 // NextToken returns the next token.
-func (l *Lexer) NextToken() token.Token {
-	var tok token.Token
+func (l *Lexer) NextToken() Token {
+	var tok Token
 
 	l.skipWhitespace()
 
 	switch l.ch {
 	case ',':
-		tok = newToken(token.COMMA, l.ch)
+		tok = newToken(COMMA, l.ch)
 	case ':':
-		tok = newToken(token.COLON, l.ch)
+		tok = newToken(COLON, l.ch)
 	case '{':
-		tok = newToken(token.LBRACE, l.ch)
+		tok = newToken(LBRACE, l.ch)
 	case '}':
-		tok = newToken(token.RBRACE, l.ch)
+		tok = newToken(RBRACE, l.ch)
 	case '[':
-		tok = newToken(token.LBRACKET, l.ch)
+		tok = newToken(LBRACKET, l.ch)
 	case ']':
-		tok = newToken(token.RBRACKET, l.ch)
+		tok = newToken(RBRACKET, l.ch)
 	case '"':
-		tok.Type = token.STRING
+		tok.Type = STRING
 		tok.Literal = l.readString()
 	case '-':
-		tok = newToken(token.MINUS, l.ch)
+		tok = newToken(MINUS, l.ch)
 	case eof:
 		tok.Literal = ""
-		tok.Type = token.EOF
+		tok.Type = EOF
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readKeyword()
-			tok.Type = token.LookupKeyword(tok.Literal)
+			tok.Type = LookupKeyword(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Literal = l.readNumber()
 			if strings.Contains(tok.Literal, ".") {
-				tok.Type = token.FLOAT
+				tok.Type = FLOAT
 			} else {
-				tok.Type = token.INT
+				tok.Type = INT
 			}
 			return tok
 		} else {
-			tok = newToken(token.ILLEGAL, l.ch)
+			tok = newToken(ILLEGAL, l.ch)
 		}
 	}
 
@@ -157,6 +155,6 @@ func isDigit(ch byte) bool {
 }
 
 // newToken initializes a token and returns it.
-func newToken(tokenType token.Type, ch byte) token.Token {
-	return token.Token{Type: tokenType, Literal: string(ch)}
+func newToken(tokenType Type, ch byte) Token {
+	return Token{Type: tokenType, Literal: string(ch)}
 }

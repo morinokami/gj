@@ -1,4 +1,4 @@
-package token
+package gj
 
 type Type string
 

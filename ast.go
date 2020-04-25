@@ -1,11 +1,9 @@
-package ast
+package gj
 
 import (
 	"bytes"
 	"fmt"
 	"strings"
-
-	"github.com/morinokami/gj/token"
 )
 
 type Expression interface {
@@ -26,7 +24,7 @@ func (json *JSON) String() string {
 }
 
 type Boolean struct {
-	Token token.Token
+	Token Token
 	Value bool
 }
 
@@ -34,7 +32,7 @@ func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
 func (b *Boolean) String() string       { return b.Token.Literal }
 
 type Null struct {
-	Token token.Token
+	Token Token
 	Value interface{}
 }
 
@@ -42,7 +40,7 @@ func (n *Null) TokenLiteral() string { return n.Token.Literal }
 func (n *Null) String() string       { return n.Token.Literal }
 
 type Integer struct {
-	Token token.Token
+	Token Token
 	Value int64
 }
 
@@ -50,7 +48,7 @@ func (i *Integer) TokenLiteral() string { return i.Token.Literal }
 func (i *Integer) String() string       { return i.Token.Literal }
 
 type Float struct {
-	Token token.Token
+	Token Token
 	Value string
 }
 
@@ -58,7 +56,7 @@ func (f *Float) TokenLiteral() string { return f.Token.Literal }
 func (f *Float) String() string       { return f.Token.Literal }
 
 type PrefixExpression struct {
-	Token    token.Token
+	Token    Token
 	Operator string
 	Right    Expression
 }
@@ -74,7 +72,7 @@ func (pe *PrefixExpression) String() string {
 }
 
 type String struct {
-	Token token.Token
+	Token Token
 	Value string
 }
 
@@ -82,7 +80,7 @@ func (s *String) TokenLiteral() string { return s.Token.Literal }
 func (s *String) String() string       { return fmt.Sprintf(`"%s"`, s.Token.Literal) }
 
 type Object struct {
-	Token token.Token
+	Token Token
 	Pairs map[String]Expression
 }
 
@@ -103,7 +101,7 @@ func (o *Object) String() string {
 }
 
 type Array struct {
-	Token  token.Token
+	Token  Token
 	Values []Expression
 }
 

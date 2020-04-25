@@ -1,24 +1,22 @@
-package ast
+package gj
 
 import (
 	"testing"
-
-	"github.com/morinokami/gj/token"
 )
 
 func TestString(t *testing.T) {
 	json := &JSON{
 		Value: &Object{
-			Token: token.Token{
-				Type:    token.LBRACE,
+			Token: Token{
+				Type:    LBRACE,
 				Literal: "{",
 			},
 			Pairs: map[String]Expression{
 				String{
-					Token: token.Token{Type: token.STRING, Literal: "foo"},
+					Token: Token{Type: STRING, Literal: "foo"},
 					Value: "foo",
 				}: &Integer{
-					Token: token.Token{Type: token.INT, Literal: "123"},
+					Token: Token{Type: INT, Literal: "123"},
 					Value: 123,
 				},
 			},
