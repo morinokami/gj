@@ -1,12 +1,9 @@
-package parser
+package gj
 
 import (
 	"fmt"
 	"reflect"
 	"testing"
-
-	"github.com/morinokami/gj/ast"
-	"github.com/morinokami/gj/lexer"
 )
 
 func TestBooleanExpression(t *testing.T) {
@@ -19,14 +16,14 @@ func TestBooleanExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		l := lexer.New(tt.input)
-		p := New(l)
-		json := p.Parse()
+		l := newLexer(tt.input)
+		p := newParser(l)
+		json := p.parse()
 		checkParserErrors(t, p)
 
-		boolean, ok := json.Value.(*ast.Boolean)
+		boolean, ok := json.Value.(*boolean)
 		if !ok {
-			t.Fatalf("json.Value not ast.Boolean. got=%T.", json.Value)
+			t.Fatalf("json.Value not boolean. got=%T.", json.Value)
 		}
 		if boolean.Value != tt.expected {
 			t.Errorf("boolean.Value not %t. got=%t.", tt.expected, boolean.Value)
@@ -37,14 +34,14 @@ func TestBooleanExpression(t *testing.T) {
 func TestNullExpression(t *testing.T) {
 	input := "null"
 
-	l := lexer.New(input)
-	p := New(l)
-	json := p.Parse()
+	l := newLexer(input)
+	p := newParser(l)
+	json := p.parse()
 	checkParserErrors(t, p)
 
-	null, ok := json.Value.(*ast.Null)
+	null, ok := json.Value.(*null)
 	if !ok {
-		t.Fatalf("json.Value not ast.Null. got=%T.", json.Value)
+		t.Fatalf("json.Value not null. got=%T.", json.Value)
 	}
 	if null.Value != nil {
 		t.Errorf("null.Value not %v. got=%v.", nil, null.Value)
@@ -54,9 +51,9 @@ func TestNullExpression(t *testing.T) {
 func TestIntegerExpression(t *testing.T) {
 	input := "42"
 
-	l := lexer.New(input)
-	p := New(l)
-	json := p.Parse()
+	l := newLexer(input)
+	p := newParser(l)
+	json := p.parse()
 	checkParserErrors(t, p)
 
 	testNumber(t, json.Value, int64(42))
@@ -65,9 +62,9 @@ func TestIntegerExpression(t *testing.T) {
 func TestFloatExpression(t *testing.T) {
 	input := "2.7182"
 
-	l := lexer.New(input)
-	p := New(l)
-	json := p.Parse()
+	l := newLexer(input)
+	p := newParser(l)
+	json := p.parse()
 	checkParserErrors(t, p)
 
 	testNumber(t, json.Value, "2.7182")
@@ -84,14 +81,14 @@ func TestPrefixExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		l := lexer.New(tt.input)
-		p := New(l)
-		json := p.Parse()
+		l := newLexer(tt.input)
+		p := newParser(l)
+		json := p.parse()
 		checkParserErrors(t, p)
 
-		exp, ok := json.Value.(*ast.PrefixExpression)
+		exp, ok := json.Value.(*prefixExpression)
 		if !ok {
-			t.Fatalf("json.Value not ast.PrefixExpression. got=%T", json.Value)
+			t.Fatalf("json.Value not prefixExpression. got=%T", json.Value)
 		}
 		if exp.Operator != tt.expectedOperator {
 			t.Fatalf("exp.Operator not '-'. got=%s", exp.Operator)
@@ -103,14 +100,14 @@ func TestPrefixExpression(t *testing.T) {
 func TestStringExpression(t *testing.T) {
 	input := `"Hello world!"`
 
-	l := lexer.New(input)
-	p := New(l)
-	json := p.Parse()
+	l := newLexer(input)
+	p := newParser(l)
+	json := p.parse()
 	checkParserErrors(t, p)
 
-	str, ok := json.Value.(*ast.String)
+	str, ok := json.Value.(*stringLiteral)
 	if !ok {
-		t.Fatalf("json.Value not ast.String. got=%T.", json.Value)
+		t.Fatalf("json.Value not stringLiteral. got=%T.", json.Value)
 	}
 	if str.Value != "Hello world!" {
 		t.Errorf("str.Value not %q. got=%q.", "Hello world!", str.Value)
@@ -120,14 +117,14 @@ func TestStringExpression(t *testing.T) {
 func TestEmptyObjectExpression(t *testing.T) {
 	input := "{}"
 
-	l := lexer.New(input)
-	p := New(l)
-	json := p.Parse()
+	l := newLexer(input)
+	p := newParser(l)
+	json := p.parse()
 	checkParserErrors(t, p)
 
-	object, ok := json.Value.(*ast.Object)
+	object, ok := json.Value.(*object)
 	if !ok {
-		t.Fatalf("json.Value not ast.Object. got=%T.", json.Value)
+		t.Fatalf("json.Value not object. got=%T.", json.Value)
 	}
 	if len(object.Pairs) != 0 {
 		t.Errorf("object.Pairs has wrong length. got=%d.", len(object.Pairs))
@@ -137,14 +134,14 @@ func TestEmptyObjectExpression(t *testing.T) {
 func TestObjectExpression(t *testing.T) {
 	input := `{"one": 1, "two": 2, "three": 3}`
 
-	l := lexer.New(input)
-	p := New(l)
-	json := p.Parse()
+	l := newLexer(input)
+	p := newParser(l)
+	json := p.parse()
 	checkParserErrors(t, p)
 
-	object, ok := json.Value.(*ast.Object)
+	object, ok := json.Value.(*object)
 	if !ok {
-		t.Fatalf("json.Value not ast.Object. got=%T.", json.Value)
+		t.Fatalf("json.Value not object. got=%T.", json.Value)
 	}
 
 	expected := map[string]int64{
@@ -164,14 +161,14 @@ func TestObjectExpression(t *testing.T) {
 func TestEmptyArrayExpression(t *testing.T) {
 	input := "[]"
 
-	l := lexer.New(input)
-	p := New(l)
-	json := p.Parse()
+	l := newLexer(input)
+	p := newParser(l)
+	json := p.parse()
 	checkParserErrors(t, p)
 
-	array, ok := json.Value.(*ast.Array)
+	array, ok := json.Value.(*array)
 	if !ok {
-		t.Fatalf("json.Value not ast.Array. got=%T.", json.Value)
+		t.Fatalf("json.Value not array. got=%T.", json.Value)
 	}
 	if len(array.Values) != 0 {
 		t.Errorf("array.Values has wrong length. got=%d.", len(array.Values))
@@ -181,14 +178,14 @@ func TestEmptyArrayExpression(t *testing.T) {
 func TestArrayExpression(t *testing.T) {
 	input := "[1, 2, 3]"
 
-	l := lexer.New(input)
-	p := New(l)
-	json := p.Parse()
+	l := newLexer(input)
+	p := newParser(l)
+	json := p.parse()
 	checkParserErrors(t, p)
 
-	array, ok := json.Value.(*ast.Array)
+	array, ok := json.Value.(*array)
 	if !ok {
-		t.Fatalf("json.Value not ast.Array. got=%T.", json.Value)
+		t.Fatalf("json.Value not array. got=%T.", json.Value)
 	}
 	if len(array.Values) != 3 {
 		t.Errorf("array.Values has wrong length. got=%d.", len(array.Values))
@@ -225,10 +222,10 @@ func TestIllegalExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		l := lexer.New(tt.input)
-		p := New(l)
-		p.Parse()
-		errors := p.Errors()
+		l := newLexer(tt.input)
+		p := newParser(l)
+		p.parse()
+		errors := p.getErrors()
 
 		if len(errors) == 0 {
 			t.Fatalf("expected to have errors, got none.")
@@ -239,21 +236,21 @@ func TestIllegalExpression(t *testing.T) {
 	}
 }
 
-func testNumber(t *testing.T, exp ast.Expression, value interface{}) {
+func testNumber(t *testing.T, exp expression, value interface{}) {
 	switch number := value.(type) {
 	case int64:
 		testInteger(t, exp, number)
-	case string: // for Float
+	case string: // for float
 		testFloat(t, exp, number)
 	default:
 		t.Errorf("Wrong value type - %T.", value)
 	}
 }
 
-func testInteger(t *testing.T, exp ast.Expression, value int64) {
-	i, ok := exp.(*ast.Integer)
+func testInteger(t *testing.T, exp expression, value int64) {
+	i, ok := exp.(*integer)
 	if !ok {
-		t.Fatalf("exp not ast.Integer. got=%T.", exp)
+		t.Fatalf("exp not integer. got=%T.", exp)
 	}
 	if i.Value != value {
 		t.Errorf("i.Value not %d. got=%d.", value, i.Value)
@@ -263,10 +260,10 @@ func testInteger(t *testing.T, exp ast.Expression, value int64) {
 	}
 }
 
-func testFloat(t *testing.T, exp ast.Expression, value string) {
-	f, ok := exp.(*ast.Float)
+func testFloat(t *testing.T, exp expression, value string) {
+	f, ok := exp.(*float)
 	if !ok {
-		t.Fatalf("exp not ast.Float. got=%T.", exp)
+		t.Fatalf("exp not float. got=%T.", exp)
 	}
 	if f.Value != value {
 		t.Errorf("f.Value not %s. got=%s.", value, f.Value)
@@ -276,8 +273,8 @@ func testFloat(t *testing.T, exp ast.Expression, value string) {
 	}
 }
 
-func checkParserErrors(t *testing.T, p *Parser) {
-	errors := p.Errors()
+func checkParserErrors(t *testing.T, p *parser) {
+	errors := p.getErrors()
 	if len(errors) == 0 {
 		return
 	}
