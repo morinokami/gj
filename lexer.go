@@ -155,6 +155,6 @@ func isDigit(ch byte) bool {
 }
 
 // newToken initializes a token and returns it.
-func newToken(tokenType Type, ch byte) Token {
+func newToken(tokenType TokenType, ch byte) Token {
 	return Token{Type: tokenType, Literal: string(ch)}
 }

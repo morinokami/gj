@@ -14,7 +14,7 @@ type Parser struct {
 	curToken  Token
 	peekToken Token
 
-	parseFns map[Type]parseFn
+	parseFns map[TokenType]parseFn
 }
 
 // New initializes a Parser object and returns it.
@@ -24,7 +24,7 @@ func NewParser(l *Lexer) *Parser {
 		errors: []string{},
 	}
 
-	p.parseFns = make(map[Type]parseFn)
+	p.parseFns = make(map[TokenType]parseFn)
 	p.registerParseFn(TRUE, p.parseBoolean)
 	p.registerParseFn(FALSE, p.parseBoolean)
 	p.registerParseFn(NULL, p.parseNull)
@@ -48,18 +48,18 @@ func (p *Parser) nextToken() {
 }
 
 // curTokenIs returns true if the type of curToken is t, false otherwise.
-func (p *Parser) curTokenIs(t Type) bool {
+func (p *Parser) curTokenIs(t TokenType) bool {
 	return p.curToken.Type == t
 }
 
 // peekTokenIs returns true if the type of peekToken is t, false otherwise.
-func (p *Parser) peekTokenIs(t Type) bool {
+func (p *Parser) peekTokenIs(t TokenType) bool {
 	return p.peekToken.Type == t
 }
 
 // If the type of peekToken is t, expectPeek returns true and advance the tokens.
 // Otherwise it returns false and append an error message to errors.
-func (p *Parser) expectPeek(t Type) bool {
+func (p *Parser) expectPeek(t TokenType) bool {
 	if p.peekTokenIs(t) {
 		p.nextToken()
 		return true
@@ -74,12 +74,12 @@ func (p *Parser) Errors() []string {
 	return p.errors
 }
 
-func (p *Parser) noParseFnError(t Type) {
+func (p *Parser) noParseFnError(t TokenType) {
 	msg := fmt.Sprintf("no parse function for %s found.", t)
 	p.errors = append(p.errors, msg)
 }
 
-func (p *Parser) peekError(t Type) {
+func (p *Parser) peekError(t TokenType) {
 	msg := fmt.Sprintf("expected next token to be %s, got %s instead.", t, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
@@ -207,6 +207,6 @@ func (p *Parser) parseArray() Expression {
 }
 
 // registerParseFn registers functions to parse each token.
-func (p *Parser) registerParseFn(tokenType Type, fn parseFn) {
+func (p *Parser) registerParseFn(tokenType TokenType, fn parseFn) {
 	p.parseFns[tokenType] = fn
 }
