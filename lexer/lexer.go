@@ -1,6 +1,10 @@
 package lexer
 
-import "github.com/morinokami/go-json-parser/token"
+import (
+	"strings"
+
+	"github.com/morinokami/go-json-parser/token"
+)
 
 const eof = 0
 
@@ -82,6 +86,14 @@ func (l *Lexer) readChar() {
 	l.readPosition++
 }
 
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return eof
+	} else {
+		return l.input[l.readPosition]
+	}
+}
+
 // readString returns a series of characters surrounded by double quotes.
 // It advances the position until it encounters either a closing double quote or the end of the input.
 func (l *Lexer) readString() string {
@@ -92,9 +104,14 @@ func (l *Lexer) readString() string {
 		if l.ch == '"' || l.ch == eof {
 			break
 		}
+		if l.ch == '\\' && l.peekChar() == '"' {
+			l.readChar()
+		}
 	}
 
-	return l.input[start:l.position]
+	result := strings.Replace(l.input[start:l.position], `\"`, `"`, -1)
+
+	return result
 }
 
 // TODO: support floats
@@ -110,7 +127,6 @@ func (l *Lexer) readNumber() string {
 	return l.input[start:l.position]
 }
 
-// TODO: support escaping double quotes
 // readKeyword returns a string of keywords.
 // It advances the position until it encounters a non-alphabetic character.
 func (l *Lexer) readKeyword() string {

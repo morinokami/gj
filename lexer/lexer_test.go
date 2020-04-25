@@ -8,16 +8,17 @@ import (
 
 func TestNextToken(t *testing.T) {
 	input := `{
-   "name": "John",
-   "profile": {
-      "age": 100,
-      "dog": true,
-      "cat": false,
-      "items": [
-          null,
-          -123
-      ]
-   }
+    "name": "John",
+    "profile": {
+        "age": 100,
+        "dog": true,
+        "cat": false,
+        "items": [
+            null,
+            -123,
+            "This is an \"escape\" of a double-quote"
+        ]
+    }
 }`
 
 	tests := []struct {
@@ -51,6 +52,8 @@ func TestNextToken(t *testing.T) {
 		{token.COMMA, ","},
 		{token.MINUS, "-"},
 		{token.INT, "123"},
+		{token.COMMA, ","},
+		{token.STRING, "This is an \"escape\" of a double-quote"},
 		{token.RBRACKET, "]"},
 		{token.RBRACE, "}"},
 		{token.RBRACE, "}"},
