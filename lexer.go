@@ -6,23 +6,23 @@ import (
 
 const eof = 0
 
-type Lexer struct {
+type lexer struct {
 	input        string
 	position     int
 	readPosition int
 	ch           byte
 }
 
-// New returns a Lexer object.
-func NewLexer(input string) *Lexer {
-	l := &Lexer{input: input}
+// newLexer returns a lexer object.
+func newLexer(input string) *lexer {
+	l := &lexer{input: input}
 	l.readChar()
 	return l
 }
 
-// NextToken returns the next token.
-func (l *Lexer) NextToken() Token {
-	var tok Token
+// nextToken returns the next token.
+func (l *lexer) nextToken() token {
+	var tok token
 
 	l.skipWhitespace()
 
@@ -50,7 +50,7 @@ func (l *Lexer) NextToken() Token {
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readKeyword()
-			tok.Type = LookupKeyword(tok.Literal)
+			tok.Type = lookupKeyword(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Literal = l.readNumber()
@@ -71,14 +71,15 @@ func (l *Lexer) NextToken() Token {
 }
 
 // skipWhitespace kips whitespace characters.
-func (l *Lexer) skipWhitespace() {
+func (l *lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
 	}
 }
 
+// TODO: Support Unicode
 // readChar reads the next character and advances the position in the input string.
-func (l *Lexer) readChar() {
+func (l *lexer) readChar() {
 	if l.readPosition >= len(l.input) {
 		l.ch = eof
 	} else {
@@ -88,7 +89,7 @@ func (l *Lexer) readChar() {
 	l.readPosition++
 }
 
-func (l *Lexer) peekChar() byte {
+func (l *lexer) peekChar() byte {
 	if l.readPosition >= len(l.input) {
 		return eof
 	} else {
@@ -98,7 +99,7 @@ func (l *Lexer) peekChar() byte {
 
 // readString returns a series of characters surrounded by double quotes.
 // It advances the position until it encounters either a closing double quote or the end of the input.
-func (l *Lexer) readString() string {
+func (l *lexer) readString() string {
 	start := l.position + 1
 
 	for {
@@ -118,7 +119,7 @@ func (l *Lexer) readString() string {
 
 // readNumber returns an integer as a string.
 // It advances the position until it encounters a non-digit character.
-func (l *Lexer) readNumber() string {
+func (l *lexer) readNumber() string {
 	start := l.position
 	readDecimalPoint := false
 
@@ -134,7 +135,7 @@ func (l *Lexer) readNumber() string {
 
 // readKeyword returns a string of keywords.
 // It advances the position until it encounters a non-alphabetic character.
-func (l *Lexer) readKeyword() string {
+func (l *lexer) readKeyword() string {
 	start := l.position
 
 	for isLetter(l.ch) {
@@ -155,6 +156,6 @@ func isDigit(ch byte) bool {
 }
 
 // newToken initializes a token and returns it.
-func newToken(tokenType TokenType, ch byte) Token {
-	return Token{Type: tokenType, Literal: string(ch)}
+func newToken(tokenType tokenType, ch byte) token {
+	return token{Type: tokenType, Literal: string(ch)}
 }

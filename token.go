@@ -1,6 +1,6 @@
 package gj
 
-type TokenType string
+type tokenType string
 
 const (
 	ILLEGAL = "ILLEGAL"
@@ -30,19 +30,19 @@ const (
 	MINUS = "-"
 )
 
-type Token struct {
-	Type    TokenType
+type token struct {
+	Type    tokenType
 	Literal string
 }
 
-var keywords = map[string]TokenType{
+var keywords = map[string]tokenType{
 	"true":  TRUE,
 	"false": FALSE,
 	"null":  NULL,
 }
 
-// LookupKeyword returns the token if kw is in keywords, ILLEGAL otherwise.
-func LookupKeyword(kw string) TokenType {
+// lookupKeyword returns the token if kw is in keywords, ILLEGAL otherwise.
+func lookupKeyword(kw string) tokenType {
 	if tok, ok := keywords[kw]; ok {
 		return tok
 	}

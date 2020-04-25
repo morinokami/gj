@@ -21,7 +21,7 @@ func TestNextToken(t *testing.T) {
 }`
 
 	tests := []struct {
-		expectedType    TokenType
+		expectedType    tokenType
 		expectedLiteral string
 	}{
 		{LBRACE, "{"},
@@ -61,10 +61,10 @@ func TestNextToken(t *testing.T) {
 		{EOF, ""},
 	}
 
-	l := NewLexer(input)
+	l := newLexer(input)
 
 	for i, tt := range tests {
-		tok := l.NextToken()
+		tok := l.nextToken()
 
 		if tok.Type != tt.expectedType {
 			t.Fatalf("tests[%d] - token type worng. expected=%q, got=%q.", i, tt.expectedType, tok.Type)

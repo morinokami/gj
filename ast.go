@@ -6,63 +6,63 @@ import (
 	"strings"
 )
 
-type Expression interface {
+type expression interface {
 	TokenLiteral() string
 	String() string
 }
 
-type JSON struct {
-	Value Expression
+type jsonValue struct {
+	Value expression
 }
 
-func (json *JSON) TokenLiteral() string {
+func (json *jsonValue) TokenLiteral() string {
 	return json.Value.TokenLiteral()
 }
 
-func (json *JSON) String() string {
+func (json *jsonValue) String() string {
 	return json.Value.String()
 }
 
-type Boolean struct {
-	Token Token
+type boolean struct {
+	Token token
 	Value bool
 }
 
-func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
-func (b *Boolean) String() string       { return b.Token.Literal }
+func (b *boolean) TokenLiteral() string { return b.Token.Literal }
+func (b *boolean) String() string       { return b.Token.Literal }
 
-type Null struct {
-	Token Token
+type null struct {
+	Token token
 	Value interface{}
 }
 
-func (n *Null) TokenLiteral() string { return n.Token.Literal }
-func (n *Null) String() string       { return n.Token.Literal }
+func (n *null) TokenLiteral() string { return n.Token.Literal }
+func (n *null) String() string       { return n.Token.Literal }
 
-type Integer struct {
-	Token Token
+type integer struct {
+	Token token
 	Value int64
 }
 
-func (i *Integer) TokenLiteral() string { return i.Token.Literal }
-func (i *Integer) String() string       { return i.Token.Literal }
+func (i *integer) TokenLiteral() string { return i.Token.Literal }
+func (i *integer) String() string       { return i.Token.Literal }
 
-type Float struct {
-	Token Token
+type float struct {
+	Token token
 	Value string
 }
 
-func (f *Float) TokenLiteral() string { return f.Token.Literal }
-func (f *Float) String() string       { return f.Token.Literal }
+func (f *float) TokenLiteral() string { return f.Token.Literal }
+func (f *float) String() string       { return f.Token.Literal }
 
-type PrefixExpression struct {
-	Token    Token
+type prefixExpression struct {
+	Token    token
 	Operator string
-	Right    Expression
+	Right    expression
 }
 
-func (pe *PrefixExpression) TokenLiteral() string { return pe.Token.Literal }
-func (pe *PrefixExpression) String() string {
+func (pe *prefixExpression) TokenLiteral() string { return pe.Token.Literal }
+func (pe *prefixExpression) String() string {
 	var out bytes.Buffer
 
 	out.WriteString(pe.Operator)
@@ -71,21 +71,21 @@ func (pe *PrefixExpression) String() string {
 	return out.String()
 }
 
-type String struct {
-	Token Token
+type stringLiteral struct {
+	Token token
 	Value string
 }
 
-func (s *String) TokenLiteral() string { return s.Token.Literal }
-func (s *String) String() string       { return fmt.Sprintf(`"%s"`, s.Token.Literal) }
+func (s *stringLiteral) TokenLiteral() string { return s.Token.Literal }
+func (s *stringLiteral) String() string       { return fmt.Sprintf(`"%s"`, s.Token.Literal) }
 
-type Object struct {
-	Token Token
-	Pairs map[String]Expression
+type object struct {
+	Token token
+	Pairs map[stringLiteral]expression
 }
 
-func (o *Object) TokenLiteral() string { return o.Token.Literal }
-func (o *Object) String() string {
+func (o *object) TokenLiteral() string { return o.Token.Literal }
+func (o *object) String() string {
 	var out bytes.Buffer
 
 	var pairs []string
@@ -100,13 +100,13 @@ func (o *Object) String() string {
 	return out.String()
 }
 
-type Array struct {
-	Token  Token
-	Values []Expression
+type array struct {
+	Token  token
+	Values []expression
 }
 
-func (a *Array) TokenLiteral() string { return a.Token.Literal }
-func (a *Array) String() string {
+func (a *array) TokenLiteral() string { return a.Token.Literal }
+func (a *array) String() string {
 	var out bytes.Buffer
 
 	var values []string

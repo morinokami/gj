@@ -5,18 +5,18 @@ import (
 )
 
 func TestString(t *testing.T) {
-	json := &JSON{
-		Value: &Object{
-			Token: Token{
+	json := &jsonValue{
+		Value: &object{
+			Token: token{
 				Type:    LBRACE,
 				Literal: "{",
 			},
-			Pairs: map[String]Expression{
-				String{
-					Token: Token{Type: STRING, Literal: "foo"},
+			Pairs: map[stringLiteral]expression{
+				stringLiteral{
+					Token: token{Type: STRING, Literal: "foo"},
 					Value: "foo",
-				}: &Integer{
-					Token: Token{Type: INT, Literal: "123"},
+				}: &integer{
+					Token: token{Type: INT, Literal: "123"},
 					Value: 123,
 				},
 			},
