@@ -95,6 +95,7 @@ func (l *Lexer) readString() string {
 	return l.input[start:l.position]
 }
 
+// TODO: support floats
 // readNumber returns an integer as a string.
 // It advances the position until it encounters a non-digit character.
 func (l *Lexer) readNumber() string {
@@ -107,6 +108,7 @@ func (l *Lexer) readNumber() string {
 	return l.input[start:l.position]
 }
 
+// TODO: support escaping double quotes
 // readKeyword returns a string of keywords.
 // It advances the position until it encounters a non-alphabetic character.
 func (l *Lexer) readKeyword() string {
