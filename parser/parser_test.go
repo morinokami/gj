@@ -62,6 +62,24 @@ func TestIntegerExpression(t *testing.T) {
 	testInteger(t, json.Value, 42)
 }
 
+func TestPrefixExpression(t *testing.T) {
+	input := "-273"
+
+	l := lexer.New(input)
+	p := New(l)
+	json := p.Parse()
+	checkParserErrors(t, p)
+
+	exp, ok := json.Value.(*ast.PrefixExpression)
+	if !ok {
+		t.Fatalf("json.Value not ast.PrefixExpression. got=%T", json.Value)
+	}
+	if exp.Operator != "-" {
+		t.Fatalf("exp.Operator not '-'. got=%s", exp.Operator)
+	}
+	testInteger(t, exp.Right, 273)
+}
+
 func TestStringExpression(t *testing.T) {
 	input := `"Hello world!"`
 

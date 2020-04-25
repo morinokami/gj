@@ -15,7 +15,7 @@ func TestNextToken(t *testing.T) {
       "cat": false,
       "items": [
           null,
-          123
+          -123
       ]
    }
 }`
@@ -49,6 +49,7 @@ func TestNextToken(t *testing.T) {
 		{token.LBRACKET, "["},
 		{token.NULL, "null"},
 		{token.COMMA, ","},
+		{token.MINUS, "-"},
 		{token.INT, "123"},
 		{token.RBRACKET, "]"},
 		{token.RBRACE, "}"},

@@ -24,6 +24,9 @@ const (
 	// Key & Literals
 	INT    = "INT"
 	STRING = "STRING"
+
+	// Operators
+	MINUS = "-"
 )
 
 type Token struct {
