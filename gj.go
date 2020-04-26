@@ -11,6 +11,7 @@ type JSON struct {
 	json *jsonExpression
 }
 
+// ParseString parses input and returns a JSON object.
 func ParseString(input string) (*JSON, error) {
 	l := newLexer(input)
 	p := newParser(l)
@@ -28,6 +29,7 @@ func (j *JSON) String() string {
 	return j.json.String()
 }
 
+// Get returns a value in the JSON using path.
 func (j *JSON) Get(path string) (interface{}, error) {
 	json := evalExpression(j.json.Value)
 	if len(path) == 0 {
@@ -75,6 +77,7 @@ func (j *JSON) Get(path string) (interface{}, error) {
 	return json, nil
 }
 
+// evalExpression recursively evaluates exp and returns it.
 func evalExpression(exp expression) interface{} {
 	switch value := exp.(type) {
 	case *booleanExpression:
