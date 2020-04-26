@@ -16,9 +16,9 @@ func ParseString(input string) (*JSON, error) {
 	p := newParser(l)
 	json := &JSON{json: p.parse()}
 
-	errors := p.getErrors()
-	if len(errors) > 0 {
-		return nil, fmt.Errorf(strings.Join(errors, "\n"))
+	err := p.getErrors()
+	if len(err) > 0 {
+		return nil, errors.New(strings.Join(err, "\n"))
 	}
 
 	return json, nil
@@ -37,25 +37,38 @@ func (j *JSON) Get(path string) (interface{}, error) {
 	keys := strings.Split(path, ".")
 	for _, key := range keys {
 		if strings.HasPrefix(key, "[") {
+			if key == "[" || key == "[]" {
+				return nil, fmt.Errorf(`index error - "%s"`, key)
+			}
+
 			index, err := strconv.ParseInt(key[1:len(key)-1], 10, 64)
 			if err != nil {
-				// TODO: error
-				return nil, err
+				return nil, fmt.Errorf(`index error - "%s"`, key)
+			}
+			if index < 0 {
+				return nil, errors.New("index error - index out of bounds")
 			}
 
 			obj, ok := json.([]interface{})
 			if !ok {
-				// TODO: error
-				return nil, errors.New("")
+				return nil, errors.New(`index error - cannot use "[]"`)
 			}
+
+			if index >= int64(len(obj)) {
+				return nil, errors.New("index error - index out of bounds")
+			}
+
 			json = obj[index]
 		} else {
 			obj, ok := json.(map[string]interface{})
 			if !ok {
-				// TODO: error
-				return nil, errors.New("")
+				return nil, fmt.Errorf(`key error - "%s"`, key)
 			}
-			json = obj[key]
+
+			json, ok = obj[key]
+			if !ok {
+				return nil, fmt.Errorf(`key error - "%s"`, key)
+			}
 		}
 	}
 
