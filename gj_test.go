@@ -10,11 +10,15 @@ func TestParser(t *testing.T) {
   }
 }`
 
-	json, err := ParseString(input)
-	if err != nil {
-		t.Fatalf("Unexpected error occurred: %s", err)
-	}
-	if json.String() != `{"data": {"id": 888, "foo": "bar"}}` {
-		t.Errorf("Parsed result wrong. got=%s, want=%s", json.String(), `{"data": {"id": 888, "foo": "bar"}}`)
-	}
+	t.Run("Get", func(t *testing.T) {
+		json, _ := ParseString(input)
+
+		got := json.Get("data.id")
+		want := 888
+
+		if got != want {
+			t.Errorf("Get result wrong. got=%q, want=%d", got, want)
+		}
+	})
+
 }

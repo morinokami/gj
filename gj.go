@@ -27,6 +27,6 @@ func (j *JSON) String() string {
 }
 
 // TODO
-//func (j *JSON) Get(path string) interface{} {
-//	return nil
-//}
+func (j *JSON) Get(path string) interface{} {
+	return nil
+}
