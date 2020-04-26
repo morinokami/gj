@@ -84,9 +84,9 @@ func (p *parser) peekError(t tokenType) {
 	p.errors = append(p.errors, msg)
 }
 
-// parse parses the input string and returns the result as an ast.jsonValue.
-func (p *parser) parse() *jsonValue {
-	json := &jsonValue{}
+// parse parses the input string and returns the result as an ast.jsonExpression.
+func (p *parser) parse() *jsonExpression {
+	json := &jsonExpression{}
 
 	json.Value = p.parseExpression()
 
@@ -106,15 +106,15 @@ func (p *parser) parseExpression() expression {
 }
 
 func (p *parser) parseBoolean() expression {
-	return &boolean{Token: p.curToken, Value: p.curTokenIs(tokTrue)}
+	return &booleanExpression{Token: p.curToken, Value: p.curTokenIs(tokTrue)}
 }
 
 func (p *parser) parseNull() expression {
-	return &null{Token: p.curToken, Value: nil}
+	return &nullExpression{Token: p.curToken, Value: nil}
 }
 
 func (p *parser) parseInteger() expression {
-	i := &integer{Token: p.curToken}
+	i := &integerExpression{Token: p.curToken}
 
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
 	if err != nil {
@@ -129,7 +129,7 @@ func (p *parser) parseInteger() expression {
 }
 
 func (p *parser) parseFloat() expression {
-	return &float{Token: p.curToken, Value: p.curToken.Literal}
+	return &floatExpression{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *parser) parsePrefixExpression() expression {
@@ -146,19 +146,19 @@ func (p *parser) parsePrefixExpression() expression {
 }
 
 func (p *parser) parseString() expression {
-	return &stringLiteral{Token: p.curToken, Value: p.curToken.Literal}
+	return &stringExpression{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *parser) parseObject() expression {
-	object := &object{Token: p.curToken}
-	object.Pairs = make(map[stringLiteral]expression)
+	object := &objectExpression{Token: p.curToken}
+	object.Pairs = make(map[string]expression)
 
 	for !p.peekTokenIs(tokRBrace) {
 		if !p.expectPeek(tokString) {
 			return nil
 		}
 
-		key := p.parseString().(*stringLiteral)
+		key := p.parseString().(*stringExpression)
 
 		if !p.expectPeek(tokColon) {
 			return nil
@@ -167,7 +167,7 @@ func (p *parser) parseObject() expression {
 		p.nextToken()
 		value := p.parseExpression()
 
-		object.Pairs[*key] = value
+		object.Pairs[key.Value] = value
 
 		if !p.peekTokenIs(tokRBrace) && !p.expectPeek(tokComma) {
 			return nil
@@ -182,7 +182,7 @@ func (p *parser) parseObject() expression {
 }
 
 func (p *parser) parseArray() expression {
-	array := &array{Token: p.curToken}
+	array := &arrayExpression{Token: p.curToken}
 	array.Values = []expression{}
 
 	if p.peekTokenIs(tokRBracket) {

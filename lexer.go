@@ -117,7 +117,7 @@ func (l *lexer) readString() string {
 	return result
 }
 
-// readNumber returns an integer as a string.
+// readNumber returns a number as a string.
 // It advances the position until it encounters a non-digit character.
 func (l *lexer) readNumber() string {
 	start := l.position
