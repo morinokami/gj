@@ -21,12 +21,12 @@ func TestBooleanExpression(t *testing.T) {
 		json := p.parse()
 		checkParserErrors(t, p)
 
-		boolean, ok := json.Value.(*boolean)
+		boolean, ok := json.Value.(*booleanExpression)
 		if !ok {
-			t.Fatalf("json.Value not boolean. got=%T.", json.Value)
+			t.Fatalf("json.Value not booleanExpression. got=%T.", json.Value)
 		}
 		if boolean.Value != tt.expected {
-			t.Errorf("boolean.Value not %t. got=%t.", tt.expected, boolean.Value)
+			t.Errorf("booleanExpression.Value not %t. got=%t.", tt.expected, boolean.Value)
 		}
 	}
 }
@@ -39,12 +39,12 @@ func TestNullExpression(t *testing.T) {
 	json := p.parse()
 	checkParserErrors(t, p)
 
-	null, ok := json.Value.(*null)
+	null, ok := json.Value.(*nullExpression)
 	if !ok {
-		t.Fatalf("json.Value not null. got=%T.", json.Value)
+		t.Fatalf("json.Value not nullExpression. got=%T.", json.Value)
 	}
 	if null.Value != nil {
-		t.Errorf("null.Value not %v. got=%v.", nil, null.Value)
+		t.Errorf("nullExpression.Value not %v. got=%v.", nil, null.Value)
 	}
 }
 
@@ -105,9 +105,9 @@ func TestStringExpression(t *testing.T) {
 	json := p.parse()
 	checkParserErrors(t, p)
 
-	str, ok := json.Value.(*stringLiteral)
+	str, ok := json.Value.(*stringExpression)
 	if !ok {
-		t.Fatalf("json.Value not stringLiteral. got=%T.", json.Value)
+		t.Fatalf("json.Value not stringExpression. got=%T.", json.Value)
 	}
 	if str.Value != "Hello world!" {
 		t.Errorf("str.Value not %q. got=%q.", "Hello world!", str.Value)
@@ -122,12 +122,12 @@ func TestEmptyObjectExpression(t *testing.T) {
 	json := p.parse()
 	checkParserErrors(t, p)
 
-	object, ok := json.Value.(*object)
+	object, ok := json.Value.(*objectExpression)
 	if !ok {
-		t.Fatalf("json.Value not object. got=%T.", json.Value)
+		t.Fatalf("json.Value not objectExpression. got=%T.", json.Value)
 	}
 	if len(object.Pairs) != 0 {
-		t.Errorf("object.Pairs has wrong length. got=%d.", len(object.Pairs))
+		t.Errorf("objectExpression.Pairs has wrong length. got=%d.", len(object.Pairs))
 	}
 }
 
@@ -139,9 +139,9 @@ func TestObjectExpression(t *testing.T) {
 	json := p.parse()
 	checkParserErrors(t, p)
 
-	object, ok := json.Value.(*object)
+	object, ok := json.Value.(*objectExpression)
 	if !ok {
-		t.Fatalf("json.Value not object. got=%T.", json.Value)
+		t.Fatalf("json.Value not objectExpression. got=%T.", json.Value)
 	}
 
 	expected := map[string]int64{
@@ -150,10 +150,10 @@ func TestObjectExpression(t *testing.T) {
 		"three": 3,
 	}
 	if len(object.Pairs) != 3 {
-		t.Errorf("object.Pairs has wrong length. got=%d.", len(object.Pairs))
+		t.Errorf("objectExpression.Pairs has wrong length. got=%d.", len(object.Pairs))
 	}
 	for key, value := range object.Pairs {
-		expectedValue := expected[key.Value]
+		expectedValue := expected[key]
 		testNumber(t, value, expectedValue)
 	}
 }
@@ -166,12 +166,12 @@ func TestEmptyArrayExpression(t *testing.T) {
 	json := p.parse()
 	checkParserErrors(t, p)
 
-	array, ok := json.Value.(*array)
+	array, ok := json.Value.(*arrayExpression)
 	if !ok {
-		t.Fatalf("json.Value not array. got=%T.", json.Value)
+		t.Fatalf("json.Value not arrayExpression. got=%T.", json.Value)
 	}
 	if len(array.Values) != 0 {
-		t.Errorf("array.Values has wrong length. got=%d.", len(array.Values))
+		t.Errorf("arrayExpression.Values has wrong length. got=%d.", len(array.Values))
 	}
 }
 
@@ -183,12 +183,12 @@ func TestArrayExpression(t *testing.T) {
 	json := p.parse()
 	checkParserErrors(t, p)
 
-	array, ok := json.Value.(*array)
+	array, ok := json.Value.(*arrayExpression)
 	if !ok {
-		t.Fatalf("json.Value not array. got=%T.", json.Value)
+		t.Fatalf("json.Value not arrayExpression. got=%T.", json.Value)
 	}
 	if len(array.Values) != 3 {
-		t.Errorf("array.Values has wrong length. got=%d.", len(array.Values))
+		t.Errorf("arrayExpression.Values has wrong length. got=%d.", len(array.Values))
 	}
 	for i := 0; i < 3; i++ {
 		testNumber(t, array.Values[i], int64(i+1))
@@ -240,7 +240,7 @@ func testNumber(t *testing.T, exp expression, value interface{}) {
 	switch number := value.(type) {
 	case int64:
 		testInteger(t, exp, number)
-	case string: // for float
+	case string: // for floatExpression
 		testFloat(t, exp, number)
 	default:
 		t.Errorf("Wrong value type - %T.", value)
@@ -248,9 +248,9 @@ func testNumber(t *testing.T, exp expression, value interface{}) {
 }
 
 func testInteger(t *testing.T, exp expression, value int64) {
-	i, ok := exp.(*integer)
+	i, ok := exp.(*integerExpression)
 	if !ok {
-		t.Fatalf("exp not integer. got=%T.", exp)
+		t.Fatalf("exp not integerExpression. got=%T.", exp)
 	}
 	if i.Value != value {
 		t.Errorf("i.Value not %d. got=%d.", value, i.Value)
@@ -261,9 +261,9 @@ func testInteger(t *testing.T, exp expression, value int64) {
 }
 
 func testFloat(t *testing.T, exp expression, value string) {
-	f, ok := exp.(*float)
+	f, ok := exp.(*floatExpression)
 	if !ok {
-		t.Fatalf("exp not float. got=%T.", exp)
+		t.Fatalf("exp not floatExpression. got=%T.", exp)
 	}
 	if f.Value != value {
 		t.Errorf("f.Value not %s. got=%s.", value, f.Value)
